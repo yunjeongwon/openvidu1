@@ -1,18 +1,15 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from 'react';
 
 const OpenViduVideoComponent = ({ streamManager }) => {
   const videoRef = useRef();
+
   useEffect(() => {
     if (videoRef) {
       streamManager.addVideoElement(videoRef.current);
     }
-  }, [videoRef]);
-  useEffect(() => {
-    if (videoRef) {
-      streamManager.addVideoElement(videoRef.current);
-    }
-  }, []);
-  return <video autoPlay={true} ref={videoRef} />;
+  }, [streamManager]);
+  
+  return <video ref={videoRef} autoPlay />;
 };
 
 export default OpenViduVideoComponent;
