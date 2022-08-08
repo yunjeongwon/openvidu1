@@ -1,0 +1,18 @@
+.chat {
+  display: flex;
+  flex-direction: column;
+}
+
+.nickname {
+  color: var(--blueShade1);
+}
+
+.createdAt {
+  font-size: var(--smallFontSize2);
+}
+
+.content {
+  margin-top: 6px;
+  color: var(--blackShade1);
+  font-size: var(--headingFontSize4);
+}

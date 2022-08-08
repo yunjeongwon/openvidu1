@@ -1,0 +1,32 @@
+.form {
+  position: relative;
+  text-align: center;
+}
+
+.chatInput {
+  height: 100px;
+  width: 300px;
+  border: 1px solid var(--blueShade1);
+  border-radius: 12px;
+  padding-left: 12px;
+  padding-bottom: 60px;
+}
+
+.placeholder {
+  position: absolute;
+  top: 12px;
+  left: 260px;
+}
+
+.chatInput:focus ~ .placeholder {
+  display: none;
+}
+
+.chatBtn {
+  position: absolute;
+  top: 12px;
+  left: 508px;
+  background: none;
+  border: none;
+  color: var(--grayShade1);
+}

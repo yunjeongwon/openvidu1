@@ -22,16 +22,16 @@ const UserVideoComponent = ({ streamManager }) => {
       - data: "{\"clientData\":\"jw\"}" // 처음에 적은 이름이 내려온다
    - videos 
   */
-  const getNicknameTag = () => {
-    return JSON.parse(streamManager.stream.connection.data).clientData; 
-  };
+  // const getNicknameTag = () => {
+  //   return JSON.parse(streamManager.stream.connection.data).clientData; 
+  // };
   return (
     <>
       {streamManager && (
-        <div>
+        <>
           <OpenViduVideoComponent streamManager={streamManager} />
-          <p>{getNicknameTag()}</p>
-        </div>
+          {/* <p>{getNicknameTag()}</p> */}
+        </>
       )}
     </>
   );

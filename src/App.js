@@ -1,8 +1,13 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { OpenVidu } from 'openvidu-browser';
 
 import UserVideoComponent from './UserVideoComponent';
+import styles from './App.module.css';
+import Chat from './Chat';
+import Controller from './Controller';
+import ParticipantList from './ParticipantList';
+import ParticipantListItem from './ParticipantListItem';
 
 const OPENVIDU_SERVER_URL = 'https://' + window.location.hostname + ':4443';
 const OPENVIDU_SERVER_SECRET = 'MY_SECRET';
@@ -10,6 +15,7 @@ const OPENVIDU_SERVER_SECRET = 'MY_SECRET';
 let OV;
 
 const App = () => {
+  const [_, setEmpty] = useState(0);
   const [session, setSession] = useState(null);
   const [sessionId, setSessionId] = useState('roomname');
   const [userName, setUserName] = useState('nickname');
@@ -18,8 +24,33 @@ const App = () => {
   const [subscribers, setSubscribers] = useState([]);
   const [currentVideoDevice, setCurrentVideoDevice] = useState(null);
 
-  const sessionRef = useRef();
-  sessionRef.current = session;
+  const reqCameraAndAudio = async () => {
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true, video: { facingMode: 'user' } });
+    } catch (err) {
+      if (err.message === 'Permission denied') {
+        window.alert('마이크, 오디오 권한을 재설정 해주세요!');
+      }
+    } 
+  };
+
+  useEffect(() => {
+    reqCameraAndAudio();
+  }, []);
+
+  if (publisher) {
+    publisher.on('streamPropertyChanged', () => {
+      setEmpty((prev) => prev + 1);
+    });
+  }
+
+  if (subscribers.length > 0) {
+    subscribers.forEach((sub) => {
+      sub.on('streamPropertyChanged', () => {
+        setEmpty((prev) => prev + 1);
+      });
+    });
+  }
 
   const onChangeUserName = (event) => {
     setUserName(event.target.value);
@@ -106,6 +137,9 @@ const App = () => {
   };
 
   const leaveSession = () => {
+    if (!window.confirm('방을 나가시겠습니까?')) {
+      return;
+    }
     if (session) session.disconnect();
 
     OV = null;
@@ -118,9 +152,19 @@ const App = () => {
     setCurrentVideoDevice(null);
   };
 
+  const listener = (e) => {
+    e.preventDefault();
+    e.returnValue = '';
+  };
+
   useEffect(() => {
-    window.addEventListener('beforeunload', leaveSession);
-    return () => window.removeEventListener('beforeunload', leaveSession);
+    window.addEventListener('beforeunload', listener);
+    return () => window.removeEventListener('beforeunload', listener);
+  });
+
+  useEffect(() => {
+    window.addEventListener('unload', leaveSession);
+    return () => window.removeEventListener('unload', leaveSession);
   });
 
   const joinSession = (event) => {
@@ -129,43 +173,46 @@ const App = () => {
     setSession(OV.initSession());
   };
 
+  const connectCamera = async () => {
+    const devices = await OV.getDevices();
+    const videoDevices = devices.filter((device) => device.kind === 'videoinput');
+    const tmpPublisher = OV.initPublisher(undefined, {
+      audioSource: undefined, 
+      videoSource: videoDevices[0].deviceId, 
+      publishAudio: true, 
+      publishVideo: true, 
+      resolution: '640x480', 
+      frameRate: 30, 
+      insertMode: 'APPEND', 
+      mirror: false, 
+    });
+    session.publish(tmpPublisher);
+    setCurrentVideoDevice(videoDevices[0]);
+    console.log('tmpPublisher', tmpPublisher, typeof tmpPublisher);
+    setMainStreamManager(tmpPublisher);
+    setPublisher(tmpPublisher);
+  };
+
   useEffect(() => {
     if (!session) return;
 
-    sessionRef.current.on('streamCreated', (event) => {
-      const subscriber = sessionRef.current.subscribe(event.stream, undefined);
+    session.on('streamCreated', (event) => {
+      const subscriber = session.subscribe(event.stream, undefined);
       setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]);
     });
 
-    sessionRef.current.on('streamDestroyed', (event) => {
+    session.on('streamDestroyed', (event) => {
       setSubscribers((prevSubscribers) => prevSubscribers.filter((stream) => stream !== event.stream.streamManager))
     });
 
-    sessionRef.current.on('exception', (exception) => {
+    session.on('exception', (exception) => {
       console.warn(exception);
     });
 
     getToken().then((token) => {
-      sessionRef.current.connect(token, { clientData: userName })
-        .then(async () => {
-          const devices = await OV.getDevices();
-          const videoDevices = devices.filter((device) => device.kind === 'videoinput');
-          
-          const tmpPublisher = OV.initPublisher(undefined, {
-            audioSource: undefined, 
-            videoSource: videoDevices[0].deviceId, 
-            publishAudio: true, 
-            publishVideo: true, 
-            resolution: '640x480', 
-            frameRate: 30, 
-            insertMode: 'APPEND', 
-            mirror: false, 
-          });
-
-          sessionRef.current.publish(tmpPublisher);
-          setCurrentVideoDevice(videoDevices[0]);
-          setMainStreamManager(tmpPublisher);
-          setPublisher(tmpPublisher);
+      session.connect(token, { clientData: userName })
+        .then(() => {
+          connectCamera();
         })
         .catch((error) => {
           console.log(
@@ -197,7 +244,7 @@ const App = () => {
 
           await session.unpublish(mainStreamManager);
           await session.publish(newPublisher);
-          
+
           setCurrentVideoDevice(newVideoDevice);
           setMainStreamManager(newPublisher);
           setPublisher(newPublisher);
@@ -209,7 +256,7 @@ const App = () => {
   };
 
   return (
-    <div className="container">
+    <div className="container" style={{ height: '100vh' }}>
       {!session && (
         <div>
           <h1> Join a video session </h1>
@@ -236,42 +283,49 @@ const App = () => {
           </form>
         </div>
       )}
-
       {session && (
-        <div id="session">
-          <button onClick={() => leaveSession()}>Leave session</button>
-
+        <div className={styles.wrapper}>
           {mainStreamManager && (
-            <div id="main-video">
-              MainStream
-              <UserVideoComponent streamManager={mainStreamManager} />
-              <button onClick={switchCamera}>Switch Camera</button>
+            <div className={styles.videoWrapper}>
+              <div className={styles.videoContainer}>
+                mainStreamManager
+                <UserVideoComponent streamManager={mainStreamManager} />
+                <button
+                  // onClick={switchCamera}
+                >Switch Camera</button>
+              </div>
             </div>
           )}
-
-          <div id="video-container">
-            {publisher && (
-              <div
-                className="stream-container"
-                onClick={() => handleMainVideoStream(publisher)}>
-                  Publisher
+          {/* {publisher && (
+            <div className={styles.videoWrapper} onClick={() => handleMainVideoStream(publisher)}>
+              <div className={styles.videoContainer}>
+                Publisher
                 <UserVideoComponent streamManager={publisher} />
               </div>
-            )}
+            </div>
+          )} */}
 
-            {subscribers.length !== 0 &&
-              subscribers.map((sub, idx) => (
-                <div
-                  key={idx}
-                  className="stream-container"
-                  onClick={() => handleMainVideoStream(sub)}>
-                    Remote
-                  <UserVideoComponent streamManager={sub} />
-                </div>
-            ))}
-          </div>
+          {subscribers.length > 0 &&
+            subscribers.map((sub, idx) => (
+            <div className={styles.videoWrapper} key={idx}>
+              <div
+                className={styles.videoContainer}
+                // onClick={() => handleMainVideoStream(sub)}
+              >
+                  Remote
+                <UserVideoComponent streamManager={sub} />
+              </div>
+            </div>
+          ))}
+          {publisher && <Controller publisher={publisher} leaveSession={leaveSession} getToken={getToken} session={session} />}
         </div>
       )}
+
+      <h4>참가자</h4>
+      {session && publisher && <ParticipantListItem publisher={publisher} session={session} />}
+      {session && subscribers && <ParticipantList subscribers={subscribers} session={session} />}
+
+      {session && <Chat session={session} leaveSession={leaveSession} />}
     </div>
   );
 };

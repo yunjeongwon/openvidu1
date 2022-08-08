@@ -1,7 +1,123 @@
-*, 
-*::before,
-*::after {
-  margin: 0;
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Brush+Script&family=Nanum+Gothic:wght@400;700;800&family=Nanum+Pen+Script&display=swap');
+
+*,
+*:before,
+*:after {
   padding: 0;
+  margin: 0;
   box-sizing: border-box;
+}
+
+*:not(i) {
+  font-family: 'Nanum Gothic', sans-serif;
+}
+
+:root {
+
+  /* ---- color ---- */
+  --blueShade1: #587291;
+  --blueShade2: #BFD7EA;
+  --blueShade3: #476181;
+  --orangeShade1: #FFA361;
+  --redShade1: #E999A3;
+  --redShade2: #CA6572;
+  --whiteShade1: #FFFFFF;
+  --whiteShade2: #F3F3F3;
+  --grayShade1: #B3B6B7;
+  --grayShade2: #D9D9D9;
+  --blackShade1: #3C3C3B;
+  --blackShade2: #231c3d;
+
+  /* ---- font ---- */
+  --baseFontSize: 1rem;
+
+  --headingFontSize1: 4rem;
+  --headingFontSize2: 2rem;
+  --headingFontSize3: 1.5rem;
+  --headingFontSize4: 1.25rem;
+  --headingFontSize5: 2.5rem;
+
+  --smallFontSize1: .875rem;
+  --smallFontSize2: .75rem;
+  --smallFontSize3: .5rem;
+
+  /* ---- border ---- */
+  --borderRadius1: 0.6rem;
+  --borderRadius2: 1.25rem;
+  --borderRadius3: 0.32rem;
+}
+
+/* ---- general ---- */
+
+html {
+  /* height: 100%; */
+  scroll-behavior: smooth;
+}
+
+body {
+  font-weight: 400;
+  font-size: 1rem;
+  color: var(--grayShade1);
+}
+
+.App {
+  min-height: 100vh;
+  position: relative;
+}
+
+ul {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+}
+
+img,
+svg {
+  max-width: 100%;
+  display: block;
+}
+
+h1 {
+  font-size: var(--headingFontSize1);
+  color: var(--whiteShade1);
+  font-weight: 400;
+  line-height: 1;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-size: var(--headingFontSize2);
+}
+
+h3 {
+  font-size: var(--headingFontSize3);
+}
+
+h4 {
+  font-size: var(--headingFontSize4);
+}
+
+/* ---- Utility Classes ---- */
+.btn-primary,
+.btn-disabled {
+  padding: 1rem 2rem;
+  border-radius: var(--borderRadius1);
+  border: none;
+  outline: none;
+  color: var(--whiteShade1);
+  transition: .5s;
+}
+
+.btn-primary {
+  background-color: var(--blueShade1);
+}
+
+.btn-disabled {
+  background-color: var(--grayShade1);
+}
+
+.btn-primary:hover {
+  background-color: var(--blueShade3);
 }

@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 
-const OpenViduVideoComponent = ({ streamManager }) => {
+import styles from './OvVideo.module.css';
+
+const OvVideo = ({ streamManager }) => {
   const videoRef = useRef();
 
   useEffect(() => {
@@ -9,7 +11,9 @@ const OpenViduVideoComponent = ({ streamManager }) => {
     }
   }, [streamManager]);
   
-  return <video ref={videoRef} autoPlay />;
+  return (
+    <video className={styles.video} ref={videoRef} autoPlay />
+  );
 };
 
-export default OpenViduVideoComponent;
+export default OvVideo;

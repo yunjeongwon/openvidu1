@@ -1,0 +1,43 @@
+.buttonGroup {
+  color: var(--blueShade1);
+  position: absolute;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  text-align: center;
+  top: 85vh;
+}
+
+.button {
+  size: 5rem;
+  background-color: var(--whiteShade1);
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 10px 0 10px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease 0s;
+}
+
+.button:hover {
+  box-shadow: 0px 15px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-7px);
+}
+
+.exitButton {
+  color: var(--whiteShade1);
+  background-color: var(--redShade2);
+}
+
+.colorRed {
+  color: var(--redShade1);
+}
+
+.hidden {
+  display: none;
+}

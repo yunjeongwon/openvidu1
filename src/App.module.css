@@ -1,0 +1,35 @@
+.wrapper {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 1fr;
+  position: relative;
+  height: 100vh;
+  justify-content: center;
+  grid-gap: 0;
+  background: var(--grayShade2);
+}
+
+.videoWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.videoContainer{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  padding: 30px;
+  width: auto;
+}
+
+@media only screen and (min-width: 750px) {
+  .wrapper {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .videoContainer {
+    max-height: 500px;
+  }
+}

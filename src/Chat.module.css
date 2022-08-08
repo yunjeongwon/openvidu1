@@ -1,0 +1,9 @@
+.wrapper {
+  display: grid;
+  grid-template-rows: 1fr 7fr 2fr;
+}
+
+.me {
+  display: flex;
+  justify-content: end;
+}
